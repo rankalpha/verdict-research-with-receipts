@@ -83,6 +83,10 @@ npm start                    # http://localhost:3000
 
 No Docker on the dev machine? It falls back to the local executor automatically (dev only — production uses Docker).
 
+## E2E verified
+
+Full loop tested with a live model: plan → generated script → sandboxed run through a proxy → `RESULT: price_usd=81007 / price_eur=72559` → answer citing `[R1]`. The no-guess rule also verified: when every receipt fails, the answer states that plainly instead of inventing data.
+
 ## Deploy on Vultr
 
 See [DEPLOY.md](DEPLOY.md) — a single script provisions an Ubuntu VM with Docker, then `npm start` behind the sandbox backend. Free-tier friendly: one VM + serverless inference.

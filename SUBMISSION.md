@@ -53,6 +53,6 @@ Per-receipt re-run buttons, receipt verification hashes, and a public receipts-l
 
 ## Links
 
-- Live app: [public URL after deployment]
-- GitHub: [repo URL]
-- Video: [3-minute demo]
+- Live app: [Vultr VM URL — deploy after payment verification]
+- GitHub: https://github.com/rankalpha/verdict-research-with-receipts
+- Video: demo.webm (recorded)

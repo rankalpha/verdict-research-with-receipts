@@ -15,6 +15,9 @@ const path = require("path");
 const timeoutMs = () => Number(process.env.SANDBOX_TIMEOUT_MS || 45000);
 
 // Minimal Windows/POSIX allowlist; everything else (incl. secrets) is dropped.
+// HTTPS_PROXY is included so sandboxed fetch() can traverse a dev-machine
+// firewall via the prelude (see sandbox-prelude.cjs) — it is a local address,
+// not a credential. Secrets like LLM_API_KEY are never allowlisted.
 const ENV_ALLOWLIST = [
   "PATH",
   "SystemRoot",
@@ -26,7 +29,12 @@ const ENV_ALLOWLIST = [
   "HOME",
   "LANG",
   "TZ",
+  "HTTPS_PROXY",
+  "HTTP_PROXY",
+  "NO_PROXY",
 ];
+
+const PRELUDE = require.resolve("../sandbox-prelude.cjs");
 
 /**
  * @param {{workdir: string, scriptFile: string}} task
@@ -36,8 +44,10 @@ function runScript(task, onEvent) {
   return new Promise((resolve) => {
     const env = {};
     for (const k of ENV_ALLOWLIST) if (process.env[k] !== undefined) env[k] = process.env[k];
-    onEvent({ type: "sandbox", data: `node ${path.basename(task.scriptFile)} (env scrubbed, ${timeoutMs()}ms cap)` });
-    const child = spawn(process.execPath, [task.scriptFile], {
+    const proxy = env.HTTPS_PROXY || env.HTTP_PROXY;
+    if (proxy) env.HTTPS_PROXY = proxy;
+    onEvent({ type: "sandbox", data: `node ${path.basename(task.scriptFile)} (env scrubbed${proxy ? ", proxy-aware" : ""}, ${timeoutMs()}ms cap)` });
+    const child = spawn(process.execPath, ["--require", PRELUDE, task.scriptFile], {
       cwd: task.workdir,
       env,
     });

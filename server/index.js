@@ -27,6 +27,8 @@ app.post("/api/research", async (req, res) => {
   });
   const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
   send("open", { ts: Date.now() });
+  const heartbeat = setInterval(() => res.write(": ping\n\n"), 15000);
+  res.on("close", () => clearInterval(heartbeat));
 
   try {
     await runTask(question, (e) => send(e.type, e.data));

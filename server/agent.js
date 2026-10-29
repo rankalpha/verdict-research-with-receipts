@@ -55,12 +55,19 @@ function extractJson(text) {
 }
 
 const CODE_RULES = `You write Node.js 20 scripts (ESM, single file). Strict rules:
+- Reply with ONE \`\`\`js fenced code block and NOTHING else — no prose before or after.
 - The script runs UNATTENDED in a sandbox. It must print its findings to stdout as its final act.
 - fetch() is available. fs is available and the process cwd is a writable work directory.
 - NO other npm packages. No user input. No interactive APIs.
 - Print a compact, machine-readable summary: lines like "RESULT: <key>=<value>" plus a short "SUMMARY:" line.
 - Keep runtime under 30 seconds. Guard fetches with try/catch and timeouts (AbortController).
 - If a data source fails, try a fallback, otherwise say plainly what failed in the SUMMARY line.`;
+
+/** Extract the last fenced JS block from a model reply; fall back to the raw text. */
+function extractCode(text) {
+  const blocks = [...text.matchAll(/```(?:js|javascript)?[^\S\n]*\n([\s\S]*?)```/g)].map((m) => m[1]);
+  return (blocks[blocks.length - 1] || text).trim();
+}
 
 /**
  * @param {string} question
@@ -83,7 +90,7 @@ async function runTask(question, emit) {
       },
       { role: "user", content: question },
     ],
-    { temperature: 0.1, maxTokens: 800 }
+    { temperature: 0.1, maxTokens: 800, onRetry: (m) => emit({ type: "status", data: m.replace("[llm] ", "LLM rate limit — ") }) }
   );
   const plan = extractJson(planRaw).slice(0, MAX_STEPS);
   emit({ type: "plan", data: plan });
@@ -111,9 +118,9 @@ async function runTask(question, emit) {
               (lastError ? `\nThe previous version of this script failed:\n${lastError}\nWrite a fixed version.` : ""),
           },
         ],
-        { temperature: 0.2, maxTokens: 1800 }
+        { temperature: attempt === 0 ? 0.2 : 0.7, maxTokens: 1800, onRetry: (m) => emit({ type: "status", data: m.replace("[llm] ", "LLM rate limit — ") }) }
       );
-      const codeBody = (code.match(/```(?:js|javascript)?\s*([\s\S]*?)```/) || [, code])[1].trim();
+      const codeBody = extractCode(code);
       emit({ type: "code", data: { index: i, code: codeBody } });
       fs.writeFileSync(scriptFile, codeBody);
 
@@ -168,7 +175,7 @@ async function runTask(question, emit) {
             .join("\n\n"),
       },
     ],
-    { temperature: 0.2, maxTokens: 900 }
+    { temperature: 0.2, maxTokens: 900, onRetry: (m) => emit({ type: "status", data: m.replace("[llm] ", "LLM rate limit — ") }) }
   );
 
   const report = {
