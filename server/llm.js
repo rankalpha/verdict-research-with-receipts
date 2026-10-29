@@ -57,7 +57,7 @@ async function chat(messages, opts = {}) {
     } catch (err) {
       if (attempt >= retries || !RETRYABLE.has(err.status)) throw err;
       const retryAfter = Number(err.headers?.get?.("retry-after")) * 1000;
-      const wait = retryAfter || Math.min(30000, 5000 * 2 ** attempt);
+      const wait = retryAfter || Math.min(32000, 10000 * 2 ** attempt);
       const msg = `[llm] transient ${err.status}, retrying in ${wait}ms (attempt ${attempt + 1}/${retries})`;
       console.error(msg);
       opts.onRetry?.(msg);
