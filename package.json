@@ -1,0 +1,18 @@
+{
+  "name": "verdict-research-with-receipts",
+  "version": "1.0.0",
+  "description": "Verdict — a research agent that answers questions by running real code in an isolated sandbox, and ships every claim with executable receipts.",
+  "main": "server/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "license": "MIT"
+}

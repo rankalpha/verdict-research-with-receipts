@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verdict — Research with Receipts</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">⚖ Verdict</div>
+    <div class="tagline">A research agent that proves every claim — real code, real output, sandboxed.</div>
+    <div class="badges">
+      <span class="badge" id="backend-badge">sandbox: …</span>
+      <span class="badge" id="model-badge">model: …</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="ask">
+      <textarea id="question" rows="3" placeholder="Ask something that can be proven with data. e.g. &quot;What is the current Bitcoin price in EUR and USD, and how much did it move in 24h?&quot;"></textarea>
+      <div class="examples">
+        <button class="example">Compare today's Bitcoin price in USD and EUR and the 24h change</button>
+        <button class="example">What is the current ISS position and how many people are in space right now?</button>
+        <button class="example">Fetch a public JSON API of your choice and compute one interesting statistic from it</button>
+      </div>
+      <button id="ask-btn" disabled>Loading…</button>
+    </section>
+
+    <section id="feed" hidden></section>
+    <section id="report" hidden></section>
+  </main>
+
+  <footer>
+    Built for Vultr: Agent Rush Hackathon — generated code runs in an ephemeral, resource-capped sandbox with a
+    scrubbed environment. It never sees API keys, and a wall-clock cap kills runaway executions.
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
